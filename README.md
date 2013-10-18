@@ -8,6 +8,7 @@
 
 <ul>
 <li>Check for victory</li>
+<li>Check moves for legality</li>
 </ul>
 
 <p>Add AI</p>
