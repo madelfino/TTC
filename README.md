@@ -7,7 +7,6 @@
 <p>Fully implement game logic</p>
 
 <ul>
-<li>Disallow drop-capturing</li>
 <li>Check for victory</li>
 </ul>
 
