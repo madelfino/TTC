@@ -27,4 +27,5 @@
 <li>Hide used spare pieces</li>
 <li>Add restart button</li>
 <li>Add ability to change color</li>
+<li>Add rules</li>
 </ul>
