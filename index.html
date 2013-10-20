@@ -1,13 +1,17 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
+    <meta charset="utf-8">
     <title>Tic Tac Chess</title>
     <link rel="stylesheet" href="css/ttcboard.css" />
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
 </head>
 <body>
     <center>
+    <div id="rulesdialog" title="Tic Tac Chess Rules">Be the first to align your four pieces of the same color horizontally, vertically or diagonally.  Play starts on an empty board, players take turns placing a piece on an empty square.  After placing your first three pieces you may move and capture as in regular chess, except a pawn reverses direction upon reaching the opposite side of the board.  Captured pieces are returned to their owner and can immediately be played again on any open square. </div>
     <h2 id="title">Tic Tac Chess</h2>
     <div id="board" style="width: 350px"></div>
-    <a href="">View Rules</a>
+    <button id="viewrules">View Rules</button>
     </center>
     
     <script src="js/json3.min.js"></script>
@@ -16,5 +20,11 @@
     <script src="js/ttcboard.js"></script>
     <script src="js/ttc.js"></script>
     <script src="js/test_ttc.js"></script>
+    <script>
+    $('#rulesdialog').dialog({autoOpen:false});
+    $('#viewrules').click(function() {
+        $('#rulesdialog').dialog('open');
+    });
+    </script>
 </body>
 </html>
