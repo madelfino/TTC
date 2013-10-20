@@ -148,7 +148,11 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
             }
             break;
         case 'B':
-
+            if (Math.abs(letter_to_num(source[0]) - letter_to_num(target[0])) != Math.abs(parseInt(source[1]) - parseInt(target[1]))) return 'snapback';
+            path_to_check = generate_path(source, target);
+            for (var i=0; i<path_to_check.length; i++) {
+                if (typeof(oldPos[path_to_check[i]]) !== 'undefined') return 'snapback';
+            }
             break;
         case 'N':
 
