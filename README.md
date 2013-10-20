@@ -7,7 +7,7 @@
 <p>Fully implement game logic</p>
 
 <ul>
-<li>Check moves for legality</li>
+<li>Check pawn moves for legality</li>
 </ul>
 
 <p>Add AI</p>
@@ -27,4 +27,5 @@
 <li>Add restart button</li>
 <li>Add ability to change color</li>
 <li>Add rules</li>
+<li>Separate move logic from onDrop method to increase testability</li>
 </ul>
