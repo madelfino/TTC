@@ -1,7 +1,8 @@
 var DEBUG = false,
     board,
     turn,
-    turn_number;
+    turn_number,
+    pawn_dir = [];
 
 function piece_color(piece) {
     if ('RNBP'.indexOf(piece) != -1) return 'white';
@@ -160,10 +161,29 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
             if (!((dx == 2 && dy == 1) || (dx == 1 && dy == 2))) return 'snapback';
             break;
         case 'P':
+            var dx = Math.abs(letter_to_num(source[0]) - letter_to_num(target[0])),
+                valid = false;
 
+            if (parseInt(source[1]) + pawn_dir[piece[0]] == parseInt(target[1])) valid = true;
+            if (dx == 1 && typeof(oldPos[target]) === 'undefined') valid = false;
+            if (dx == 0 && typeof(oldPos[target]) !== 'undefined') valid = false;
+            if (dx > 1) valid = false;
+
+            if (!valid) return 'snapback';
+            if (target[1] == '1' || target[1] == '4') pawn_dir[piece[0]] = -pawn_dir[piece[0]];
             break;
         default:
             break;
+        } //end switch(piece[1])
+    } else if (piece[1] == 'P') {
+        if (piece[0] == 'w') {
+            pawn_dir['w'] = 1;
+            if (target[1] == '4')
+                pawn_dir['w'] = -1;
+        } else {
+            pawn_dir['b'] = -1;
+            if (target[1] == '1')
+                pawn_dir['b'] = 1;
         }
     }
 
@@ -186,6 +206,8 @@ var init = function() {
     });
     turn = 'w';
     turn_num = 0;
+    pawn_dir['w'] = 1;
+    pawn_dir['b'] = -1;
 }; // end init()
 
 function run_test(test) {
