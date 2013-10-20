@@ -7,7 +7,6 @@
 <p>Fully implement game logic</p>
 
 <ul>
-<li>Check for victory</li>
 <li>Check moves for legality</li>
 </ul>
 
