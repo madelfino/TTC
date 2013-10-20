@@ -56,19 +56,6 @@ function winner() {
         if (the_winner != 'none') return the_winner;
     }
     
-    if (DEBUG) {
-        var myStr = '';
-        for (i=0;i<16;i++) {
-            myStr += piece_colors[i];
-            if (i%4 == 3) {
-                myStr += '\n';
-            } else {
-                myStr += ' ';
-            }
-        }
-        alert(myStr);
-    }
-
     return 'none';
 } //end winner()
 
@@ -87,25 +74,94 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
         * trying to drop on a square that already has a piece on it
         * black moving on white's turn or white moving on black's turn
         * dropping a piece off board
-        * trying to drop a piece on the board that already exists
         * moving a piece before 3 pieces have been placed intially
+        * trying to drop a piece on the board that already exists
     */
     if (source == 'spare' && typeof oldPos[target] !== 'undefined' ||
         piece[0] != turn ||
         JSON.stringify(newPos) == JSON.stringify(oldPos) ||
         source != 'spare' && turn_num < 6)
         return 'snapback';
+
     for (square1 in newPos) {
+        if (typeof oldPos[square1] !== 'undefined' && newPos[square1][0] == oldPos[square1][0] && newPos[square1][1] != oldPos[square1][1]) return 'snapback';
         for (square2 in newPos) {
-            if (newPos[square1] == newPos[square2] && square1 != square2)
-                return 'snapback';
+            if (newPos[square1] == newPos[square2] && square1 != square2) return 'snapback';
         }
     }
-    if (turn == 'w') {
-        turn = 'b';
-    } else {
-        turn = 'w';
+
+    function letter_to_num(letter) {
+        switch(letter) {
+            case 'a':
+                return 1;
+            case 'b':
+                return 2;
+            case 'c':
+                return 3;
+            case 'd':
+                return 4;
+            default:
+                return -1;
+        }
     }
+
+    function num_to_letter(num) {
+        switch (num) {
+            case 1:
+                return 'a';
+            case 2:
+                return 'b';
+            case 3:
+                return 'c';
+            case 4:
+                return 'd';
+            default:
+                return 'X';
+        }
+    }
+
+    function generate_path(start, end) {
+        var dir1, dir2, cur1, cur2, dest1, dest2,
+            path = [];
+        cur1 = letter_to_num(start[0]);
+        cur2 = parseInt(start[1]);
+        dest1 = letter_to_num(end[0]);
+        dest2 = parseInt(end[1]);
+        dir1 = (dest1 > cur1) ? 1 : (dest1 < cur1) ? -1 : 0;
+        dir2 = (dest2 > cur2) ? 1 : (dest2 < cur2) ? -1 : 0;
+        while ( (cur1 != dest1 || cur2 != dest2) && path.length <= 4 ) {
+            cur1 += dir1; cur2 += dir2;
+            if (cur1 != dest1 || cur2 != dest2) {
+                path.push(num_to_letter(cur1) + cur2);
+            }
+        }
+        return (path.length >= 4) ? [] : path;
+    }
+
+    if (source != 'spare') {
+        switch(piece[1]) {
+        case 'R':
+            if (source[0] != target[0] && source[1] != target[1]) return 'snapback';
+            path_to_check = generate_path(source, target);
+            for (var i=0; i<path_to_check.length; i++) {
+                if (typeof(oldPos[path_to_check[i]]) !== 'undefined') return 'snapback';
+            }
+            break;
+        case 'B':
+
+            break;
+        case 'N':
+
+            break;
+        case 'P':
+
+            break;
+        default:
+            break;
+        }
+    }
+
+    turn = (turn == 'w') ? 'b' : 'w';
     turn_num++;
 }; //end onDrop()
 
