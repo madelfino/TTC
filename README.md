@@ -8,6 +8,7 @@
 
 <ul>
 <li>Check moves for legality</li>
+<li>Disallow moving on board until the first 3 drops</li>
 </ul>
 
 <p>Add AI</p>
