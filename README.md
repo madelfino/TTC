@@ -18,7 +18,6 @@
 
 <ul>
 <li>Hide used spare pieces</li>
-<li>Add restart button</li>
 <li>Add ability to change color</li>
-<li>Add rules</li>
+<li>Clean up rules, make them clearer, improve visuals of button and modal</li>
 </ul>

@@ -202,11 +202,16 @@ var init = function() {
         sparePieces: true,
         onDrop: onDrop,
         onSnapEnd: onSnapEnd
+    })
+    
+    $('#restart').click(function() {
+        board.position('4/4/4/4');
+        turn = 'w';
+        turn_num = 0;
+        pawn_dir['w'] = 1;
+        pawn_dir['b'] = -1;
     });
-    turn = 'w';
-    turn_num = 0;
-    pawn_dir['w'] = 1;
-    pawn_dir['b'] = -1;
+    $('#restart').click();
 }; // end init()
 
 $(document).ready(init);
