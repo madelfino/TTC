@@ -200,7 +200,6 @@ var init = function() {
     board = new ChessBoard('board', {
         draggable: true,
         sparePieces: true,
-        showNotation: false,
         onDrop: onDrop,
         onSnapEnd: onSnapEnd
     });
