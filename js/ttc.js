@@ -14,11 +14,11 @@ function winner() {
         cur_num = 0,
         the_winner = 'none',
         piece_colors = [],
-        col = [],
+        col = [], diag1 = [], diag2 = [],
         position = board.fen().split('/');
 
     function check_row(row) {
-        return (row[0] == row[1] && row[1] == row[2] && row[2] == row[3]) ? row[0] : 'none';
+        return (row.length == 4 && row[0] == row[1] && row[1] == row[2] && row[2] == row[3]) ? row[0] : 'none';
     } //end check_row()
 
     while (i < 16) {
@@ -40,12 +40,18 @@ function winner() {
 
     for (i=0; i<4; i++) {
         col = [];
+        diag1[i] = piece_colors[i*4+i];
+        diag2[i] = piece_colors[i*4+3-i];
         for (j=0; j<4; j++) {
             col[j] = piece_colors[j*4+i];
-        } console.log(col);
+        }
         the_winner = check_row(piece_colors.slice(i*4, i*4+4));
         if (the_winner != 'none') return the_winner;
         the_winner = check_row(col);
+        if (the_winner != 'none') return the_winner;
+        the_winner = check_row(diag1);
+        if (the_winner != 'none') return the_winner;
+        the_winner = check_row(diag2);
         if (the_winner != 'none') return the_winner;
     }
     
@@ -149,14 +155,14 @@ function run_tests() {
     num_passed += run_test(function() {
         board.position('P3/1N2/2B1/3R');
         if (winner() == 'white') return 'passed';
-        return 'failed checking victory (white, diagonal starting at top right)';
+        return 'failed checking victory (white, diagonal starting at top left)';
     });
 
     total_tests++;
     num_passed += run_test(function() {
         board.position('3b/2p1/1n2/r3');
         if (winner() == 'black') return 'passed';
-        return 'failed checking victory (black, diagonal starting at top left)';
+        return 'failed checking victory (black, diagonal starting at top right)';
     });
 
     total_tests++;
