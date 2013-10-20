@@ -14,6 +14,7 @@ function winner() {
         cur_num = 0,
         the_winner = 'none',
         piece_colors = [],
+        col = [],
         position = board.fen().split('/');
 
     function check_row(row) {
@@ -38,7 +39,13 @@ function winner() {
     }
 
     for (i=0; i<4; i++) {
+        col = [];
+        for (j=0; j<4; j++) {
+            col[j] = piece_colors[j*4+i];
+        } console.log(col);
         the_winner = check_row(piece_colors.slice(i*4, i*4+4));
+        if (the_winner != 'none') return the_winner;
+        the_winner = check_row(col);
         if (the_winner != 'none') return the_winner;
     }
     
