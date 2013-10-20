@@ -14,7 +14,7 @@ function run_tests() {
  
     var num_passed = 0,
         total_tests = 0,
-        current_position = board.position();
+        current_position = JSON.parse(JSON.stringify((board.position())));
 
     total_tests++;
     num_passed += run_test(function() {
@@ -51,6 +51,39 @@ function run_tests() {
         return 'failed checking victory (no winner, empty board)';
     });
 
+    total_tests++;
+    num_passed += run_test(function() {
+        if (onDrop('spare', 'a1', 'wP', {'a1':'wP'}, {}) != 'snapback') return 'passed';
+        return 'failed droping piece on board (white pawn on a1)';
+    });
+
+    total_tests++;
+    num_passed += run_test(function() {
+        if (onDrop('a1', 'd4', 'wP', {'d4':'wP'}, {'a1':'wP'}) == 'snapback') return 'passed';
+        return 'failed allowed white to move twice in a row';
+    });
+
+    total_tests++;
+    num_passed += run_test(function() {
+        if (onDrop('spare', 'd4', 'bR', {'a1':'wP','d4':'bR'}, {'a1':'wP'}) != 'snapback') return 'passed';
+        return 'failed dropping piece on board (black rook on d4)';
+    });
+
+    total_tests++;
+    num_passed += run_test(function() {
+        if (onDrop('spare', 'd4', 'wN', {'a1':'wP', 'd4':'wN'}, {'a1':'wP','d4':'bR'}) == 'snapback') return 'passed';
+        return 'failed allowed a drop-capture';
+    });
+
+    total_tests++;
+    num_passed += run_test(function() {
+        if (onDrop('spare', 'a2', 'wP', {'a1':'wP','a2':'wP','d4':'bR'}, {'a1':'wP','d4':'bR'}) == 'snapback') return 'passed';
+        return 'failed allowed dropping a piece that is already on the board';
+    });
+
+    board.position('4/4/4/4');
+    turn_num = 0;
+    turn = 'w';
     alert('' + num_passed + '/' + total_tests + ' tests passed.');
 }
 

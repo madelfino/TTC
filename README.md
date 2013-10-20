@@ -21,5 +21,4 @@
 <li>Add restart button</li>
 <li>Add ability to change color</li>
 <li>Add rules</li>
-<li>Separate move logic from onDrop method to increase testability</li>
 </ul>
