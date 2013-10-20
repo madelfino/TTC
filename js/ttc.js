@@ -1,6 +1,7 @@
 var DEBUG = false,
     board,
-    turn;
+    turn,
+    turn_number;
 
 function piece_color(piece) {
     if ('RNBP'.indexOf(piece) != -1) return 'white';
@@ -87,9 +88,13 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
         * black moving on white's turn or white moving on black's turn
         * dropping a piece off board
         * trying to drop a piece on the board that already exists
+        * moving a piece before 3 pieces have been placed intially
     */
-    if (source == 'spare' && typeof oldPos[target] !== 'undefined') return 'snapback';
-    if (piece[0] != turn || JSON.stringify(newPos) == JSON.stringify(oldPos)) return 'snapback';
+    if (source == 'spare' && typeof oldPos[target] !== 'undefined' ||
+        piece[0] != turn ||
+        JSON.stringify(newPos) == JSON.stringify(oldPos) ||
+        source != 'spare' && turn_num < 6)
+        return 'snapback';
     for (square1 in newPos) {
         for (square2 in newPos) {
             if (newPos[square1] == newPos[square2] && square1 != square2)
@@ -101,6 +106,7 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
     } else {
         turn = 'w';
     }
+    turn_num++;
 }; //end onDrop()
 
 var onSnapEnd = function() {
@@ -117,6 +123,7 @@ var init = function() {
         onSnapEnd: onSnapEnd
     });
     turn = 'w';
+    turn_num = 0;
 }; // end init()
 
 function run_test(test) {
