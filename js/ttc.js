@@ -155,7 +155,9 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
             }
             break;
         case 'N':
-
+            var dx = Math.abs(letter_to_num(source[0]) - letter_to_num(target[0])),
+                dy = Math.abs(parseInt(source[1]) - parseInt(target[1]));
+            if (!((dx == 2 && dy == 1) || (dx == 1 && dy == 2))) return 'snapback';
             break;
         case 'P':
 
