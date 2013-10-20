@@ -212,6 +212,8 @@ var init = function() {
         pawn_dir['b'] = -1;
     });
     $('#restart').click();
+
+    $('#flipboard').on('click', board.flip);
 }; // end init()
 
 $(document).ready(init);
