@@ -4,12 +4,6 @@
 
 <h2>TODO:</h2>
 
-<p>Fully implement game logic</p>
-
-<ul>
-<li>Check pawn moves for legality</li>
-</ul>
-
 <p>Add AI</p>
 
 <ul>
