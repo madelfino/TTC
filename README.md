@@ -17,6 +17,5 @@
 <p>Other</p>
 
 <ul>
-<li>Hide used spare pieces</li>
 <li>Clean up rules, make them clearer, improve visuals of button and modal</li>
 </ul>

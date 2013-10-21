@@ -175,15 +175,29 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
         default:
             break;
         } //end switch(piece[1])
-    } else if (piece[1] == 'P') {
-        if (piece[0] == 'w') {
-            pawn_dir['w'] = 1;
-            if (target[1] == '4')
-                pawn_dir['w'] = -1;
-        } else {
-            pawn_dir['b'] = -1;
-            if (target[1] == '1')
-                pawn_dir['b'] = 1;
+        if (typeof(oldPos[target]) !== 'undefined') {
+            var piece_images = $('.piece-417db');
+            for (i=0; i<piece_images.length; i++) {
+                if (piece_images[i].id.indexOf(oldPos[target]) == 0)
+                    $(piece_images[i]).show();
+            }
+        }
+    } else { //if placing a spare piece
+        if (piece[1] == 'P') {
+            if (piece[0] == 'w') {
+                pawn_dir['w'] = 1;
+                if (target[1] == '4')
+                    pawn_dir['w'] = -1;
+            } else {
+                pawn_dir['b'] = -1;
+                if (target[1] == '1')
+                    pawn_dir['b'] = 1;
+            }
+        }
+        var piece_images = $('.piece-417db');
+        for (i=0; i<piece_images.length; i++) {
+            if (piece_images[i].id.indexOf(piece) == 0)
+                $(piece_images[i]).hide();
         }
     }
 
