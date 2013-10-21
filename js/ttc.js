@@ -247,6 +247,8 @@ var init = function() {
         turn_num = 0;
         pawn_dir['w'] = 1;
         pawn_dir['b'] = -1;
+        board.flip();
+        board.flip();
     });
     $('#restart').click();
 
