@@ -23,5 +23,4 @@
 <p>Bugs</p>
 
 <ul>
-<li>When you flip the board, hidden spare pieces reappear</li>
 </ul>

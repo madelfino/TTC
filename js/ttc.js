@@ -10,6 +10,29 @@ function piece_color(piece) {
     return 'invalid';
 } //end piece_color(piece)
 
+// convert FEN piece code to bP, wK, etc
+function fenToPieceCode(piece) {
+  // black piece
+  if (piece.toLowerCase() === piece) {
+    return 'b' + piece.toUpperCase();
+  }
+  // white piece
+  return 'w' + piece.toUpperCase();
+}
+
+function hide_used_pieces() {
+    var position = board.fen(),
+        spare_pieces = $('.piece-417db');
+    for (var i=0; i<position.length; i++) {
+        if (piece_color(position[i]) != 'invalid') {
+            for (var j=0; j<spare_pieces.length; j++) {
+                if (spare_pieces[j].id.indexOf(fenToPieceCode(position[i])) == 0)
+                    $(spare_pieces[j]).hide();
+            }
+        }
+    }
+}
+
 function winner() {
     var i = 0, j, k,
         cur = '',
@@ -227,7 +250,10 @@ var init = function() {
     });
     $('#restart').click();
 
-    $('#flipboard').on('click', board.flip);
+    $('#flipboard').click(function(){
+        board.flip();
+        hide_used_pieces();
+    });
 }; // end init()
 
 $(document).ready(init);
