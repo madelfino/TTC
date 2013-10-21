@@ -19,3 +19,9 @@
 <ul>
 <li>Clean up rules, make them clearer, improve visuals of button and modal</li>
 </ul>
+
+<p>Bugs</p>
+
+<ul>
+<li>When you flip the board, hidden spare pieces reappear</li>
+</ul>
