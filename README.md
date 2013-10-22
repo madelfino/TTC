@@ -18,6 +18,7 @@
 
 <ul>
 <li>Clean up rules, make them clearer, improve visuals of button and modal</li>
+<li>Make landing page</li>
 </ul>
 
 <p>Bugs</p>
