@@ -20,15 +20,34 @@ function fenToPieceCode(piece) {
   return 'w' + piece.toUpperCase();
 }
 
-function hide_used_pieces() {
-    var position = board.fen(),
-        spare_pieces = $('.piece-417db');
+function used_pieces() {
+    var used = '',
+        position = board.fen();
     for (var i=0; i<position.length; i++) {
-        if (piece_color(position[i]) != 'invalid') {
-            for (var j=0; j<spare_pieces.length; j++) {
-                if (spare_pieces[j].id.indexOf(fenToPieceCode(position[i])) == 0)
-                    $(spare_pieces[j]).hide();
-            }
+        if (piece_color(position[i]) != 'invalid')
+            used.push(position[i]);
+    }
+    return used;
+}
+
+function unused_pieces() {
+    var used = used_pieces(),
+        unused = '',
+        all = 'RNBPrnbp';
+    for (var i=0; i<all.length; i++) {
+        if (used.indexOf(all[i]) == -1)
+            unused.push(all[i]);
+    }
+    return unused;
+}
+
+function hide_used_pieces() {
+    var spare_pieces = $('.piece-417db'),
+        used = used_pieces();
+    for (var i=0; i<used.length; i++) {
+        for (var j=0; j<spare_pieces.length; j++) {
+            if (spare_pieces[j].id.indexOf(fenToPieceCode(used[i])) == 0)
+                $(spare_pieces[j]).hide();
         }
     }
 }
