@@ -10,22 +10,28 @@ function piece_color(piece) {
     return 'invalid';
 } //end piece_color(piece)
 
-// convert FEN piece code to bP, wK, etc
 function fenToPieceCode(piece) {
-  // black piece
-  if (piece.toLowerCase() === piece) {
-    return 'b' + piece.toUpperCase();
-  }
-  // white piece
-  return 'w' + piece.toUpperCase();
-}
+    if (piece.toLowerCase() === piece) {
+        return 'b' + piece.toUpperCase();
+    }
+    return 'w' + piece.toUpperCase();
+} //end fenToPieceCode(piece)
+
+function pieceCodeToFen(piece) {
+    var tmp = piece.split('');
+    if (tmp.length != 2) return 'inavalid';
+    if (tmp[0] === 'w') {
+        return tmp[1].toUpperCase();
+    }
+    return tmp[1].toLowerCase();
+} //end pieceCodeToFen(piece)
 
 function used_pieces() {
     var used = '',
         position = board.fen();
     for (var i=0; i<position.length; i++) {
         if (piece_color(position[i]) != 'invalid')
-            used.push(position[i]);
+            used = used.concat(position[i]);
     }
     return used;
 }
@@ -36,18 +42,24 @@ function unused_pieces() {
         all = 'RNBPrnbp';
     for (var i=0; i<all.length; i++) {
         if (used.indexOf(all[i]) == -1)
-            unused.push(all[i]);
+            unused = unused.concat(all[i]);
     }
     return unused;
 }
 
-function hide_used_pieces() {
+function hide_show_used_pieces() {
     var spare_pieces = $('.piece-417db'),
-        used = used_pieces();
-    for (var i=0; i<used.length; i++) {
-        for (var j=0; j<spare_pieces.length; j++) {
-            if (spare_pieces[j].id.indexOf(fenToPieceCode(used[i])) == 0)
-                $(spare_pieces[j]).hide();
+        used = used_pieces(),
+        unused = unused_pieces();
+    for (var i=0; i<spare_pieces.length; i++) {
+        var piece = pieceCodeToFen(spare_pieces[i].id.substr(0,2));
+        if (piece != 'invalid') {
+            if (used.indexOf(piece) != -1) {
+                $(spare_pieces[i]).hide();
+            } else if (unused.indexOf(piece) != -1) {
+                console.log('show ' + piece);
+                $(spare_pieces[i]).show();
+            }
         }
     }
 }
@@ -266,14 +278,13 @@ var init = function() {
         turn_num = 0;
         pawn_dir['w'] = 1;
         pawn_dir['b'] = -1;
-        board.flip();
-        board.flip();
+        hide_show_used_pieces();
     });
     $('#restart').click();
 
     $('#flipboard').click(function(){
         board.flip();
-        hide_used_pieces();
+        hide_show_used_pieces();
     });
 }; // end init()
 
