@@ -6,7 +6,8 @@ var DEBUG = false,
     turn_to_int = {'w':1,'b':-1},
     ai = true,
     ai_color = 'b',
-    fake_move = false;
+    fake_move = false,
+    uid = 0;
 
 function getRandomElement(array) { return (typeof(array) !== 'undefined' && array.length > 0) ? array[Math.floor(Math.random()*array.length)] : undefined; }
 
@@ -125,9 +126,10 @@ function winner(position_to_check) {
     return 'none';
 } //end winner()
 
-function move(move_str) {
-    if (move_str.indexOf('spare') == 0) drop_piece(move_str.substr(5,1), move_str.substr(7,2));
-    else board.move(move_str);
+function move(move_str, show_animation) {
+    if (show_animation != 'true') show_animation = false;
+    if (move_str.indexOf('spare') == 0) drop_piece(move_str.substr(5,1), move_str.substr(7,2), show_animation);
+    else board.move(move_str, show_animation);
 }
 
 function piece_location(piece, position) {
@@ -177,16 +179,84 @@ function generate_all_moves(color, oldPos) {
     return all_moves;
 }
 
-function drop_piece(piece, target) {
+function filter_moves(moves) {
+    var drops = [],
+        piece = '';
+    for (var x in moves) {
+        if (moves[x].indexOf('spare') == 0) {
+            if (piece == '') piece = moves[x][5];
+            if (moves[x][5] == piece) drops[drops.length] = moves[x];
+        }
+    }
+    if (drops.length > 0) return drops;
+    return moves;
+}
+
+function drop_piece(piece, target, show_animation) {
+    if (show_animation != 'true') show_animation = false;
     var position = board.position();
     if (piece_color(piece) == 'invalid' || typeof(position[target]) !== 'undefined') return false;
     position[target] = fenToPieceCode(piece);
-    board.position(position);
+    board.position(position, show_animation);
     return true;
 }
 
+function evaluate(position) {
+    var the_winner = winner(position),
+        score = 0;
+    if (the_winner == 'w') return 100;
+    if (the_winner == 'b') return -100;
+
+    return score;
+}
+
+function minimax(node, depth, color) {
+    turn_num++;
+    turn = color;
+    if (depth == 0 || winner(node) != 'none') return evaluate(node);
+    board.position(node, false);
+    var moves = filter_moves(generate_all_moves(color, board.position())),
+        current_position = board.fen();
+    if (color == 'w') {
+        var best_value = -1000, val;
+        for (var x in moves) {
+            move(moves[x], false);
+            val = minimax(board.fen(), depth-1, 'b');
+            best_value = Math.max(best_value, val);
+            board.position(current_position, false);
+        }
+        return best_value;
+    } else {
+        var best_value = 1000, val;
+        for (var x in moves) {
+            move(moves[x], false);
+            val = minimax(board.fen(), depth-1, 'w');
+            best_value = Math.min(best_value, val);
+            board.position(current_position, false);
+        }
+        return best_value;
+    }
+}
+
 function ai_move() {
-    move(getRandomElement(generate_all_moves(ai_color, board.position())));
+    var moves = filter_moves(generate_all_moves(ai_color, board.position())),
+        best_move = '',
+        best_value = -1000 * turn_to_int[ai_color],
+        current_position = board.fen(),
+        current_turn = turn,
+        current_turn_num = turn_num;
+    for (x in moves) {
+        move(moves[x], false);
+        value = minimax(board.fen(), 1, (ai_color == 'w') ? 'b' : 'w');
+        if (value > best_value && ai_color == 'w' || ai_color == 'b' && value < best_value) {
+            best_move = moves[x];
+            best_value = value;
+        }
+        board.position(current_position, false);
+    }
+    move(best_move);
+    turn = current_turn;
+    turn_num = current_turn_num;
     turn = (turn == 'w') ? 'b' : 'w';
     turn_num++;
     hide_show_used_pieces();
@@ -303,7 +373,7 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
             if (dx > 1) valid = false;
 
             if (!valid) return 'snapback';
-            if (target[1] == '1' || target[1] == '4') pawn_dir[piece[0]] = -pawn_dir[piece[0]];
+            if (!fake_move && (target[1] == '1' || target[1] == '4')) pawn_dir[piece[0]] = -pawn_dir[piece[0]];
             break;
         default:
             break;
