@@ -149,7 +149,7 @@ function generate_moves(piece, oldPos) {
             var target = 'abcd'[f] + '1234'[r];
             if (target != source) {
                 var newPos = deepCopy(oldPos),
-                    move = source + '-' + target;
+                    move = source + ((source == 'spare') ? piece : '') +  '-' + target;
                 if (source != 'spare') delete newPos[source];
                 newPos[target] = pieceCode;
                 if (onDrop(source, target, pieceCode, newPos, oldPos) != 'snapback') {
@@ -186,13 +186,7 @@ function drop_piece(piece, target) {
 }
 
 function ai_move() {
-    var unused = unused_pieces(ai_color);
-    //generate_all_moves(ai_color, board.position());
-    if (unused.length > 0) {
-       while (!drop_piece(getRandomElement(unused), getRandomElement('abcd') + getRandomElement('1234')));
-    } else {
-        board.move(getRandomElement(generate_all_moves(ai_color, board.position())));
-    }
+    move(getRandomElement(generate_all_moves(ai_color, board.position())));
     turn = (turn == 'w') ? 'b' : 'w';
     turn_num++;
     hide_show_used_pieces();
