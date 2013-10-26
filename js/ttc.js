@@ -5,9 +5,14 @@ var DEBUG = false,
     pawn_dir = []
     turn_to_int = {'w':1,'b':-1},
     ai = true,
-    ai_color = 'b';
+    ai_color = 'b',
+    fake_move = false;
 
 function getRandomElement(array) { return (typeof(array) !== 'undefined' && array.length > 0) ? array[Math.floor(Math.random()*array.length)] : undefined; }
+
+function deepCopy(thing) {
+  return JSON.parse(JSON.stringify(thing));
+}
 
 function piece_color(piece) {
     if ('RNBP'.indexOf(piece) != -1) return 'w';
@@ -120,6 +125,58 @@ function winner(position_to_check) {
     return 'none';
 } //end winner()
 
+function move(move_str) {
+    if (move_str.indexOf('spare') == 0) drop_piece(move_str.substr(5,1), move_str.substr(7,2));
+    else board.move(move_str);
+}
+
+function piece_location(piece, position) {
+    var pieceCode = fenToPieceCode(piece);
+    for (var square in position) {
+        if (position[square] == pieceCode)
+            return square;
+    }
+    return 'spare';
+}
+
+function generate_moves(piece, oldPos) {
+    var moves = [],
+        source = piece_location(piece, oldPos),
+        pieceCode = fenToPieceCode(piece);
+    fake_move = true;
+    for (var f = 0; f < 4; f++) {
+        for (var r = 0; r < 4; r++) {
+            var target = 'abcd'[f] + '1234'[r];
+            if (target != source) {
+                var newPos = deepCopy(oldPos),
+                    move = source + '-' + target;
+                if (source != 'spare') delete newPos[source];
+                newPos[target] = pieceCode;
+                if (onDrop(source, target, pieceCode, newPos, oldPos) != 'snapback') {
+                    moves[moves.length] = move;
+                }
+            }
+        }
+    }
+    fake_move = false;
+    return moves;
+}
+
+function generate_all_moves(color, oldPos) {
+    var pieces = 'rbnp',
+        moves = [],
+        all_moves = [],
+        piece = '';
+    if (color == 'w') pieces = pieces.toUpperCase();
+    for (var p in pieces) {
+        moves = generate_moves(pieces[p], oldPos);
+        for (var i in moves) {
+            all_moves[all_moves.length] = moves[i];
+        }
+    }
+    return all_moves;
+}
+
 function drop_piece(piece, target) {
     var position = board.position();
     if (piece_color(piece) == 'invalid' || typeof(position[target]) !== 'undefined') return false;
@@ -130,10 +187,11 @@ function drop_piece(piece, target) {
 
 function ai_move() {
     var unused = unused_pieces(ai_color);
+    //generate_all_moves(ai_color, board.position());
     if (unused.length > 0) {
        while (!drop_piece(getRandomElement(unused), getRandomElement('abcd') + getRandomElement('1234')));
     } else {
-
+        board.move(getRandomElement(generate_all_moves(ai_color, board.position())));
     }
     turn = (turn == 'w') ? 'b' : 'w';
     turn_num++;
@@ -282,8 +340,10 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
         }
     }
 
-    turn = (turn == 'w') ? 'b' : 'w';
-    turn_num++;
+    if (!fake_move) {
+        turn = (turn == 'w') ? 'b' : 'w';
+        turn_num++;
+    }
 }; //end onDrop()
 
 var onDragStart = function(source, piece, position, orientation) {
@@ -296,7 +356,7 @@ var onSnapEnd = function() {
     var the_winner = winner();
     the_winner = (the_winner == 'w') ? 'White' : (the_winner == 'b') ? 'Black' : the_winner;
     if (the_winner != 'none') alert(the_winner + ' wins!');
-    if (ai && ai_color == turn) ai_move();
+    else if (ai && ai_color == turn) ai_move();
 }; //end onSnapEnd()
 
 var init = function() {
