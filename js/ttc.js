@@ -2,11 +2,16 @@ var DEBUG = false,
     board,
     turn,
     turn_number,
-    pawn_dir = [];
+    pawn_dir = []
+    turn_to_int = {'w':1,'b':-1},
+    ai = true,
+    ai_color = 'b';
+
+function getRandomElement(array) { return (typeof(array) !== 'undefined' && array.length > 0) ? array[Math.floor(Math.random()*array.length)] : undefined; }
 
 function piece_color(piece) {
-    if ('RNBP'.indexOf(piece) != -1) return 'white';
-    if ('rnbp'.indexOf(piece) != -1) return 'black';
+    if ('RNBP'.indexOf(piece) != -1) return 'w';
+    if ('rnbp'.indexOf(piece) != -1) return 'b';
     return 'invalid';
 } //end piece_color(piece)
 
@@ -19,27 +24,28 @@ function fenToPieceCode(piece) {
 
 function pieceCodeToFen(piece) {
     var tmp = piece.split('');
-    if (tmp.length != 2) return 'inavalid';
+    if (tmp.length != 2) return 'invalid';
     if (tmp[0] === 'w') {
         return tmp[1].toUpperCase();
     }
     return tmp[1].toLowerCase();
 } //end pieceCodeToFen(piece)
 
-function used_pieces() {
+function used_pieces(color) {
     var used = '',
         position = board.fen();
+    if (typeof(color) === 'undefined') color = 'wb';
     for (var i=0; i<position.length; i++) {
-        if (piece_color(position[i]) != 'invalid')
+        if (color.indexOf(piece_color(position[i])) != -1)
             used = used.concat(position[i]);
     }
     return used;
 }
 
-function unused_pieces() {
+function unused_pieces(color) {
     var used = used_pieces(),
         unused = '',
-        all = 'RNBPrnbp';
+        all = (color == 'w') ? 'RNBP' : (color == 'b') ? 'rnbp' : 'RNBPrnbp';
     for (var i=0; i<all.length; i++) {
         if (used.indexOf(all[i]) == -1)
             unused = unused.concat(all[i]);
@@ -57,21 +63,21 @@ function hide_show_used_pieces() {
             if (used.indexOf(piece) != -1) {
                 $(spare_pieces[i]).hide();
             } else if (unused.indexOf(piece) != -1) {
-                console.log('show ' + piece);
                 $(spare_pieces[i]).show();
             }
         }
     }
 }
 
-function winner() {
+function winner(position_to_check) {
+    if (typeof(position_to_check) === 'undefined') position_to_check = board.fen();
     var i = 0, j, k,
         cur = '',
         cur_num = 0,
         the_winner = 'none',
         piece_colors = [],
         col = [], diag1 = [], diag2 = [],
-        position = board.fen().split('/');
+        position = position_to_check.split('/');
 
     function check_row(row) {
         return (row.length == 4 && row[0] == row[1] && row[1] == row[2] && row[2] == row[3]) ? row[0] : 'none';
@@ -114,6 +120,26 @@ function winner() {
     return 'none';
 } //end winner()
 
+function drop_piece(piece, target) {
+    var position = board.position();
+    if (piece_color(piece) == 'invalid' || typeof(position[target]) !== 'undefined') return false;
+    position[target] = fenToPieceCode(piece);
+    board.position(position);
+    return true;
+}
+
+function ai_move() {
+    var unused = unused_pieces(ai_color);
+    if (unused.length > 0) {
+       while (!drop_piece(getRandomElement(unused), getRandomElement('abcd') + getRandomElement('1234')));
+    } else {
+
+    }
+    turn = (turn == 'w') ? 'b' : 'w';
+    turn_num++;
+    hide_show_used_pieces();
+}
+
 var onDrop = function(source, target, piece, newPos, oldPos, orient) {
     if (DEBUG) $('#title').html('source: ' + source
                               + '<br>target: ' + target
@@ -135,8 +161,9 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
     if (source == 'spare' && typeof oldPos[target] !== 'undefined' ||
         piece[0] != turn ||
         JSON.stringify(newPos) == JSON.stringify(oldPos) ||
-        source != 'spare' && turn_num < 6)
+        source != 'spare' && turn_num < 6) {
         return 'snapback';
+    }
 
     for (square1 in newPos) {
         if (typeof oldPos[square1] !== 'undefined' && newPos[square1][0] == oldPos[square1][0] && newPos[square1][1] != oldPos[square1][1]) return 'snapback';
@@ -259,9 +286,17 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
     turn_num++;
 }; //end onDrop()
 
+var onDragStart = function(source, piece, position, orientation) {
+  if (winner() != 'none') {
+    return false;
+  }
+};
+
 var onSnapEnd = function() {
     var the_winner = winner();
+    the_winner = (the_winner == 'w') ? 'White' : (the_winner == 'b') ? 'Black' : the_winner;
     if (the_winner != 'none') alert(the_winner + ' wins!');
+    if (ai && ai_color == turn) ai_move();
 }; //end onSnapEnd()
 
 var init = function() {
@@ -269,6 +304,7 @@ var init = function() {
         draggable: true,
         sparePieces: true,
         onDrop: onDrop,
+        onDragStart: onDragStart,
         onSnapEnd: onSnapEnd
     })
     
@@ -286,6 +322,7 @@ var init = function() {
         board.flip();
         hide_show_used_pieces();
     });
+    if (ai && ai_color == turn) ai_move();
 }; // end init()
 
 $(document).ready(init);
