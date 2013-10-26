@@ -248,7 +248,9 @@ function ai_move() {
     for (x in moves) {
         move(moves[x], false);
         value = minimax(board.fen(), 1, (ai_color == 'w') ? 'b' : 'w');
-        if (value > best_value && ai_color == 'w' || ai_color == 'b' && value < best_value) {
+        if (value > best_value && ai_color == 'w' ||
+            ai_color == 'b' && value < best_value ||
+            value == best_value && Math.random() < 0.5) {
             best_move = moves[x];
             best_value = value;
         }
