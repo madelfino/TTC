@@ -281,11 +281,13 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
         * dropping a piece off board
         * moving a piece before 3 pieces have been placed intially
         * trying to drop a piece on the board that already exists
+        * trying to move to the same square you started on
     */
     if (source == 'spare' && typeof oldPos[target] !== 'undefined' ||
         piece[0] != turn ||
         JSON.stringify(newPos) == JSON.stringify(oldPos) ||
-        source != 'spare' && turn_num < 6) {
+        source != 'spare' && turn_num < 6 ||
+        source == target) {
         return 'snapback';
     }
 
