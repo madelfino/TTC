@@ -424,7 +424,7 @@ var onSnapEnd = function() {
     var the_winner = winner();
     the_winner = (the_winner == 'w') ? 'White' : (the_winner == 'b') ? 'Black' : the_winner;
     if (the_winner != 'none') alert(the_winner + ' wins!');
-    else if (ai && ai_color == turn) ai_move();
+    else if (ai && ai_color == turn) setTimeout(ai_move, 250);
 }; //end onSnapEnd()
 
 var init = function() {
@@ -450,7 +450,7 @@ var init = function() {
         board.flip();
         hide_show_used_pieces();
     });
-    if (ai && ai_color == turn) ai_move();
+    if (ai && ai_color == turn) setTimeout(ai_move, 250);
 }; // end init()
 
 $(document).ready(init);
