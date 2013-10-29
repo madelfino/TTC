@@ -7,7 +7,7 @@ var DEBUG = false,
     ai = true,
     ai_color = 'b',
     fake_move = false,
-    uid = 0;
+    moves_explored = 0;
 
 function getRandomElement(array) { return (typeof(array) !== 'undefined' && array.length > 0) ? array[Math.floor(Math.random()*array.length)] : undefined; }
 
@@ -179,13 +179,16 @@ function generate_all_moves(color, oldPos) {
     return all_moves;
 }
 
-function filter_moves(moves) {
+function filter_moves(moves, level) {
     var drops = [],
         piece = '';
+    if (typeof(level) === 'undefined') level = 0;
     for (var x in moves) {
         if (moves[x].indexOf('spare') == 0) {
             if (piece == '') piece = moves[x][5];
             if (moves[x][5] == piece) drops[drops.length] = moves[x];
+        } else if (level > 0) {
+            drops[drops.length] = moves[x];
         }
     }
     if (drops.length > 0) return drops;
@@ -211,11 +214,12 @@ function evaluate(position) {
 }
 
 function minimax(node, depth, color) {
+    moves_explored++;
     turn_num++;
     turn = color;
     if (depth == 0 || winner(node) != 'none') return evaluate(node);
     board.position(node, false);
-    var moves = filter_moves(generate_all_moves(color, board.position())),
+    var moves = filter_moves(generate_all_moves(color, board.position()), (ai_color == color) ? 0 : 1),
         current_position = board.fen();
     if (color == 'w') {
         var best_value = -1000, val;
@@ -245,6 +249,7 @@ function ai_move() {
         current_position = board.fen(),
         current_turn = turn,
         current_turn_num = turn_num;
+    moves_explored = 0;
     for (x in moves) {
         move(moves[x], false);
         value = minimax(board.fen(), 1, (ai_color == 'w') ? 'b' : 'w');
@@ -256,12 +261,15 @@ function ai_move() {
         }
         board.position(current_position, false);
     }
+    if (DEBUG) alert('moves explored: ' + moves_explored);
     move(best_move);
+    $('#status').text('');
     turn = current_turn;
     turn_num = current_turn_num;
     turn = (turn == 'w') ? 'b' : 'w';
     turn_num++;
     hide_show_used_pieces();
+    check_for_winner();
 }
 
 var onDrop = function(source, target, piece, newPos, oldPos, orient) {
@@ -282,15 +290,17 @@ var onDrop = function(source, target, piece, newPos, oldPos, orient) {
         * moving a piece before 3 pieces have been placed intially
         * trying to drop a piece on the board that already exists
         * trying to move to the same square you started on
+        * moving opponents piece when playing against AI
     */
     if (source == 'spare' && typeof oldPos[target] !== 'undefined' ||
         piece[0] != turn ||
         JSON.stringify(newPos) == JSON.stringify(oldPos) ||
         source != 'spare' && turn_num < 6 ||
-        source == target) {
+        source == target ||
+        ai == true && ai_color == piece[0] && !fake_move) {
         return 'snapback';
     }
-
+    
     for (square1 in newPos) {
         if (typeof oldPos[square1] !== 'undefined' && newPos[square1][0] == oldPos[square1][0] && newPos[square1][1] != oldPos[square1][1]) return 'snapback';
         for (square2 in newPos) {
@@ -420,11 +430,11 @@ var onDragStart = function(source, piece, position, orientation) {
   }
 };
 
-var onSnapEnd = function() {
+var check_for_winner = function() {
     var the_winner = winner();
     the_winner = (the_winner == 'w') ? 'White' : (the_winner == 'b') ? 'Black' : the_winner;
     if (the_winner != 'none') alert(the_winner + ' wins!');
-    else if (ai && ai_color == turn) setTimeout(ai_move, 250);
+    else if (ai && ai_color == turn) { $('#status').text("Thinking..."); setTimeout(ai_move, 250); }
 }; //end onSnapEnd()
 
 var init = function() {
@@ -433,7 +443,7 @@ var init = function() {
         sparePieces: true,
         onDrop: onDrop,
         onDragStart: onDragStart,
-        onSnapEnd: onSnapEnd
+        onSnapEnd: check_for_winner
     })
     
     $('#restart').click(function() {
@@ -450,7 +460,7 @@ var init = function() {
         board.flip();
         hide_show_used_pieces();
     });
-    if (ai && ai_color == turn) setTimeout(ai_move, 250);
+    if (ai && ai_color == turn) { $('#status').text("Thinking..."); setTimeout(ai_move, 250); }
 }; // end init()
 
 $(document).ready(init);
